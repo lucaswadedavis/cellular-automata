@@ -1,0 +1,15 @@
+.sim-map {
+  text-align: center;
+  padding: 8px;
+}
+
+.sim-map td {
+  width: 10px;
+  height: 10px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.sim-map table {
+  border-collapse: collapse;
+}

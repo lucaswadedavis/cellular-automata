@@ -7,23 +7,24 @@ import './style.css';
 
 function MapCell() {
   return {
-    blue: 0,
-    red: 0,
-    green: 0,
+    water: 1,
+    land: 0,
+    plants: 0,
+    fruit: 0,
   };
 }
 
 function generateSimMap() {
   const simMap = [];
-  const mapSideLength = 40;
+  const mapSideLength = 100;
   for (let i = 0; i < mapSideLength; i++) {
     simMap.push([[]]);
     for (let j = 0; j < mapSideLength; j++) {
       simMap[i][j] = MapCell();
     }
   }
-  //const sim = Sim(simMap);
-  //sim.addLand();
+  const sim = Sim(simMap);
+  sim.addLand();
   return simMap;
 }
 
@@ -35,7 +36,6 @@ class App extends React.Component {
     simMap = this.addClickHandlers(simMap);
     this.state = {
       play: false,
-      activeColor: 'red',
       simMap,
     };
   }
@@ -44,9 +44,8 @@ class App extends React.Component {
     simMap = map2D(simMap, (cell, i, j, simMap) => {
       cell.clickHandler = () => {
         const sm = this.state.simMap;
-        const { activeColor } = this.state;
         const c = sm[i][j];
-        c[activeColor] = c[activeColor] ? 0 : 1; 
+        c.plants = 1; 
         this.setState({ simMap: sm });
       };
       return cell;
@@ -57,7 +56,7 @@ class App extends React.Component {
   createNewSimMap() {
     let simMap = generateSimMap();
     simMap = this.addClickHandlers(simMap);
-    this.setState({ play: false, simMap });
+    this.setState({ simMap });
   }
 
   play() {
@@ -81,7 +80,7 @@ class App extends React.Component {
     let { simMap, play } = this.state;
     console.log('step');
     const sim = Sim(simMap);
-    simMap = sim.iterate();
+    simMap = sim.iteratePlants();
     this.setState({ simMap });
     if (play) {
       window.setTimeout(() => {
@@ -90,100 +89,47 @@ class App extends React.Component {
     };
   }
 
-  activate(color) {
-    this.setState({ activeColor: color });
-  }
-
-  renderColorButtonArea() {
-    const { activeColor } = this.state;
-    const base = {
-      border: '10px solid #fff',
-      width: '40px',
-      height: '40px',
-      cursor: 'pointer',
-      display: 'inline-block',
-      margin: '12px',
-    };
-    const redStyle = Object.assign({
-      background: 'rgb(255, 0, 0)',
-    }, base);
-    const greenStyle = Object.assign({
-      background: 'rgb(0, 255, 0)',
-    }, base);
-    const blueStyle = Object.assign({
-      background: 'rgb(0, 0, 255)',
-    }, base);
-    let selectedColorStyle;
-    if (activeColor === 'red') {
-      selectedColorStyle = redStyle;
-    } else if (activeColor === 'green') {
-      selectedColorStyle = greenStyle;
-    } else {
-      selectedColorStyle = blueStyle;
-    }
-    selectedColorStyle.border = "10px solid #000";
-    return (
-      <div>
-        <div
-          style={ redStyle }
-          onClick={ () => this.activate('red') }
-          >
-        </div>
-        <div
-          style={ greenStyle }
-          onClick={ () => this.activate('green') }
-          >
-        </div>
-        <div
-          style={ blueStyle }
-          onClick={ () => this.activate('blue') }
-          >
-        </div>
-      </div>
-    );
-  }
-
-  renderRulesArea() {
-    return (
-      <div>
-        <h2>If</h2>
-        <h3>Red/Green/Blue is above/below 1/2/3/4/5/6/7/8/9</h3>
-        <h2>and</h2>
-        <h3>If Red/Green/Blue is above/below 1/2/3/4/5/6/7/8/9</h3>
-        <h2>then</h2>
-        <h3>Set the cell Red/Green/Blue to 0/1</h3>
-      </div>
-    );
-  }
-
   render() {
-    const { simMap, play } = this.state;
+    const { simMap } = this.state;
     return (
       <div className="main flex-container">
         <div className="flex-child">
           <SimMapView simMap={ simMap }/>
         </div>
         <div className="flex-child">
-          { this.renderColorButtonArea() }
           <Button
             variant="contained"
             color="primary"
             onClick={ () => this.createNewSimMap() }
             >
-            Reset
+            Generate Sim Map
           </Button>
           <div>
             <Button
               variant="contained"
-              onClick={ () => play ? this.pause() : this.play() }
+              onClick={ () => this.play() }
               >
-              { play ? 'Pause' : 'Play' }
+              Play 
+            </Button>
+            <Button
+              variant="contained"
+              onClick={ () => this.pause() }
+              >
+              Pause 
             </Button>
             <Button
               variant="contained"
               onClick={ () => this.stepForward() }
               >
               Step Forward 
+            </Button>
+          </div>
+          <div>
+            <Button
+              variant="contained"
+              onClick={ () => this.isolateIslands() }
+              >
+              Isolate Islands  
             </Button>
           </div>
         </div>

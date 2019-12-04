@@ -1,0 +1,15 @@
+.main {
+
+}
+
+.main button {
+  margin: 8px;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.flex-child {
+  flex: 1;
+}
